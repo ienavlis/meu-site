@@ -3,493 +3,386 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Quiz: Princípios do DOM</title>
+    <title>Master DOM Arcade: O Jogo de Aprendizado</title>
     <!-- Tailwind CSS para estilização moderna e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         }
-        .correct-glow {
-            border-color: #10b981 !important;
-            background-color: #ecfdf5 !important;
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
-        .incorrect-glow {
-            border-color: #ef4444 !important;
-            background-color: #fef2f2 !important;
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen py-10 px-4">
+<body class="min-h-screen text-slate-800 flex flex-col justify-between py-6 px-4">
 
-    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-slate-200">
-        <!-- Cabeçalho -->
-        <header class="text-center mb-8">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mb-2">Desafio do DOM 🌳</h1>
-            <p class="text-blue-500 font-medium text-sm sm:text-base">Teste seus conhecimentos com 15 perguntas fundamentais e aprenda com justificativas detalhadas</p>
-            <div id="scoreContainer" class="hidden mt-4 inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-full font-bold text-sm">
-                Pontuação: <span id="currentScore">0</span> / 15
-            </div>
-        </header>
-        
-        <!-- Formulário do Quiz -->
-        <form id="quizForm" class="space-y-8">
-            
-            <!-- Pergunta 1 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="1">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    1. O que significa a sigla DOM?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q1" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Document Object Model</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q1" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Data Object Management</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q1" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Digital Ordered Mainframe</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
+    <!-- Cabeçalho do Jogo -->
+    <header class="max-w-2xl w-full mx-auto flex items-center justify-between text-white mb-4">
+        <div class="flex items-center gap-2">
+            <span class="text-3xl">🌳</span>
+            <h1 class="text-xl sm:text-2xl font-black tracking-wide">DOM Arcade</h1>
+        </div>
+        <div class="flex items-center gap-4 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 text-sm font-bold">
+            <div>🔥 Acertos: <span id="scoreCount" class="text-emerald-400">0</span></div>
+            <div>⚡ Questão: <span id="currentQuestionNum">1</span>/15</div>
+        </div>
+    </header>
 
-            <!-- Pergunta 2 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="2">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    2. Qual é o objeto global fornecido pelo navegador que serve como ponto de entrada para o DOM?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q2" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">window.dom</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q2" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q2" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">html</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 3 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="3">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    3. Qual método seleciona APENAS o primeiro elemento correspondente a um seletor CSS específico?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q3" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.querySelectorAll()</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q3" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.querySelector()</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q3" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.getElementBySelector()</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 4 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="4">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    4. Para selecionar todos os elementos com a classe "item", qual sintaxe está correta?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q4" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.querySelectorAll('item')</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q4" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.getElementById('.item')</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q4" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.querySelectorAll('.item')</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 5 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="5">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    5. Qual propriedade modifica de forma segura o texto visível de um nó, sem interpretar tags HTML?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q5" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">textContent</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q5" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">innerHTML</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q5" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">value</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 6 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="6">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    6. O que acontece ao usar a propriedade `innerHTML = "&lt;strong&gt;Olá&lt;/strong&gt;"` em um elemento?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q6" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Escreve o texto puro incluindo as tags de forma literal na tela.</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q6" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Renderiza a palavra "Olá" em negrito, interpretando o HTML.</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q6" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Apaga o elemento inteiro do documento por segurança.</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 7 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="7">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    7. Qual propriedade do elemento usamos para alterar diretamente propriedades CSS individuais (ex: cor de fundo)?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q7" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.css</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q7" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.style</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q7" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.class</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 8 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="8">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    8. Como se escreve a propriedade CSS `background-color` ao manipulá-la via JavaScript?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q8" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">backgroundColor (CamelCase)</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q8" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">background-color (Igual ao CSS)</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q8" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">BackgroundColor (Primeira maiúscula)</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 9 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="9">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    9. Qual método cria um novo elemento HTML na memória (ex: uma nova tag 'p'), antes de inseri-lo na página?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q9" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.newElement('p')</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q9" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.createElement('p')</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q9" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">document.appendElement('p')</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 10 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="10">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    10. Qual método adiciona um nó filho ao final da lista de filhos de um elemento pai?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q10" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">parentElement.appendChild(childNode)</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q10" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">parentElement.insertChild(childNode)</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q10" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">parentElement.addToEnd(childNode)</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 11 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="11">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    11. Como você remove permanentemente um elemento selecionado do DOM?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q11" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">elemento.delete()</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q11" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">elemento.clear()</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q11" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">elemento.remove()</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 12 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="12">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    12. Qual método é utilizado para escutar e reagir a eventos (como cliques, envios de formulário, teclas pressionadas)?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q12" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.addEventListener()</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q12" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.onEvent()</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q12" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.listen()</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 13 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="13">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    13. Como você pode adicionar ou remover dinamicamente uma classe CSS de um elemento com facilidade?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q13" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.classNameList</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q13" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.classList (com add, remove, toggle)</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q13" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">element.cssList</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 14 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="14">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    14. Qual propriedade obtém ou define o valor inserido em um campo de formulário (<code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs">&lt;input&gt;</code>)?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q14" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">textContent</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q14" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">innerHTML</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q14" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">value</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Pergunta 15 -->
-            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="15">
-                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
-                    15. O que significa quando dizemos que o DOM possui uma estrutura de "Árvore" (Tree)?
-                </div>
-                <div class="options space-y-3">
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q15" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Que o código precisa ser executado ao ar livre em servidores remotos.</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q15" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Que os elementos se organizam em nós pais, filhos e irmãos hierarquicamente.</span>
-                    </label>
-                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="q15" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-3 text-sm sm:text-base">Que o arquivo precisa obrigatoriamente ter extensão .tree.</span>
-                    </label>
-                </div>
-                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
-            </div>
-
-            <!-- Ações -->
-            <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                <button type="submit" id="submitBtn" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95 text-lg">
-                    Conferir Respostas 🎯
-                </button>
-                <button type="button" id="resetBtn" class="hidden w-full py-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95 text-lg">
-                    Reiniciar Quiz 🔄
-                </button>
-            </div>
-        </form>
-
-        <!-- Resultado Final Global -->
-        <div id="resultBox" class="hidden mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm"></div>
+    <!-- Barra de Progresso -->
+    <div class="max-w-2xl w-full mx-auto bg-white/20 rounded-full h-3 mb-6 overflow-hidden border border-white/10">
+        <div id="progressBar" class="bg-emerald-400 h-full w-[6.66%] transition-all duration-300 rounded-full"></div>
     </div>
 
-    <!-- Script de Interatividade e Justificativas -->
+    <!-- Tela Principal do Jogo (Card da Pergunta) -->
+    <main class="max-w-2xl w-full mx-auto bg-white rounded-3xl shadow-2xl p-6 sm:p-8 border border-slate-100 flex-1 flex flex-col justify-between animate-pop" id="gameCard">
+        
+        <div>
+            <!-- Categoria/Nível -->
+            <div class="flex justify-between items-center mb-4">
+                <span id="questionBadge" class="bg-blue-100 text-blue-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Fundamentos</span>
+                <span class="text-xs font-semibold text-slate-400">Modo Jogo Interativo</span>
+            </div>
+
+            <!-- Título da Pergunta -->
+            <h2 id="questionTitle" class="text-lg sm:text-xl font-bold text-slate-900 mb-6 leading-snug">
+                Carregando pergunta...
+            </h2>
+
+            <!-- Opções de Resposta -->
+            <div id="optionsContainer" class="space-y-3">
+                <!-- Injetadas dinamicamente via JS -->
+            </div>
+        </div>
+
+        <!-- Área de Feedback e Justificativa (inicialmente oculta) -->
+        <div id="feedbackSection" class="hidden mt-6 pt-4 border-t border-slate-100">
+            <div id="feedbackHeader" class="font-black text-lg mb-1"></div>
+            <p id="feedbackText" class="text-sm sm:text-base text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-200"></p>
+            <button id="nextBtn" class="mt-4 w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95 text-base flex items-center justify-center gap-2">
+                Próxima Pergunta ➡️
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Tela de Conclusão (Oculta por padrão) -->
+    <div id="completionScreen" class="hidden max-w-2xl w-full mx-auto bg-white rounded-3xl shadow-2xl p-8 sm:p-12 text-center animate-pop my-auto">
+        <div class="text-6xl mb-4" id="completionEmoji">🏆</div>
+        <h2 class="text-3xl font-black text-slate-900 mb-2">Missão Concluída!</h2>
+        <p class="text-slate-600 mb-6 text-lg" id="completionMessage">Você completou o desafio do DOM com sucesso.</p>
+        
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-8 max-w-xs mx-auto">
+            <div class="text-sm font-semibold text-blue-600 uppercase tracking-wider">Pontuação Final</div>
+            <div class="text-4xl font-black text-blue-900 mt-1"><span id="finalScore">0</span> / 15</div>
+        </div>
+
+        <button id="restartGameBtn" class="w-full max-w-md mx-auto py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-xl transition transform active:scale-95 text-lg flex items-center justify-center gap-2">
+            Jogar Novamente 🔄
+        </button>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="text-center text-white/60 text-xs mt-6">
+        Master DOM Arcade • Aprenda JavaScript manipulando o DOM em tempo real
+    </footer>
+
+    <!-- Lógica do Jogo -->
     <script>
-        // Dicionário contendo as justificativas explicativas para cada pergunta
-        const justifications = {
-            1: "Correto! DOM significa Document Object Model (Modelo de Objeto de Documento), a interface que permite ao JS interagir com páginas web.",
-            2: "Correto! O objeto global `document` representa toda a página web carregada no navegador e é o ponto de partida para consultas e manipulações.",
-            3: "Correto! O `document.querySelector()` retorna o primeiro elemento que corresponde ao seletor CSS fornecido.",
-            4: "Correto! O `document.querySelectorAll('.item')` busca por classes (indicadas pelo ponto `.`) e retorna uma NodeList com todos os elementos encontrados.",
-            5: "Correto! `textContent` altera ou lê apenas o texto bruto do nó de forma segura, sem analisar caracteres como tags HTML.",
-            6: "Correto! `innerHTML` interpreta o conteúdo inserido como marcação HTML real, transformando strings como `<strong>` em elementos estilizados.",
-            7: "Correto! A propriedade `.style` dá acesso direto ao estilo inline do elemento para manipulação de propriedades visuais individuais.",
-            8: "Correto! No JavaScript, as propriedades compostas do CSS perdem o hífen e passam a ser escritas em formato CamelCase (`backgroundColor`).",
-            9: "Correto! `document.createElement('tag')` instancia um novo elemento na memória do navegador antes de ele ser inserido na página.",
-            10: "Correto! `appendChild()` insere um nó como o último filho do elemento pai especificado.",
-            11: "Correto! O método `.remove()` exclui diretamente o elemento selecionado da árvore do DOM.",
-            12: "Correto! `addEventListener()` é a forma moderna e recomendada de registrar ouvintes de eventos em elementos do DOM.",
-            13: "Correto! `classList` fornece métodos práticos como `.add()`, `.remove()` e `.toggle()` para gerenciar classes CSS de forma limpa.",
-            14: "Correto! A propriedade `.value` obtém ou define o conteúdo atual inserido em campos interativos como inputs, textareas e selects.",
-            15: "Correto! O DOM modela a página como uma árvore hierárquica formada por nós conectados (pais, filhos e irmãos)."
-        };
+        const questions = [
+            {
+                badge: "Fundamentos",
+                title: "1. O que significa a sigla DOM?",
+                options: [
+                    { text: "Document Object Model", correct: true, justification: "Correto! DOM significa Document Object Model (Modelo de Objeto de Documento), a interface que permite ao JavaScript interagir estruturalmente com as páginas web." },
+                    { text: "Data Object Management", correct: false, justification: "Incorreto. A sigla correta é Document Object Model." },
+                    { text: "Digital Ordered Mainframe", correct: false, justification: "Incorreto. Refere-se a Document Object Model." }
+                ]
+            },
+            {
+                badge: "Fundamentos",
+                title: "2. Qual é o objeto global fornecido pelo navegador que serve como ponto de entrada para o DOM?",
+                options: [
+                    { text: "window.dom", correct: false, justification: "Incorreto. O objeto global padrão acessível na árvore é o `document`." },
+                    { text: "document", correct: true, justification: "Correto! O objeto global `document` representa toda a página web carregada no navegador e é o ponto de partida absoluto para consultas." },
+                    { text: "html", correct: false, justification: "Incorreto. O objeto correto é `document`." }
+                ]
+            },
+            {
+                badge: "Seletores",
+                title: "3. Qual método seleciona APENAS o primeiro elemento correspondente a um seletor CSS específico?",
+                options: [
+                    { text: "document.querySelectorAll()", correct: false, justification: "Incorreto. `querySelectorAll` retorna uma lista com todos os elementos correspondentes." },
+                    { text: "document.querySelector()", correct: true, justification: "Correto! O `document.querySelector()` retorna estritamente o primeiro elemento que corresponde ao seletor CSS fornecido." },
+                    { text: "document.getElementBySelector()", correct: false, justification: "Incorreto. Este método não existe na API padrão do DOM." }
+                ]
+            },
+            {
+                badge: "Seletores",
+                title: "4. Para selecionar todos os elementos com a classe 'item', qual sintaxe está correta?",
+                options: [
+                    { text: "document.querySelectorAll('item')", correct: false, justification: "Incorreto. Faltou o ponto indicador de classe." },
+                    { text: "document.getElementById('.item')", correct: false, justification: "Incorreto. `getElementById` busca apenas por ID único sem o ponto." },
+                    { text: "document.querySelectorAll('.item')", correct: true, justification: "Correto! O seletor de classe requer o ponto (`.item`) e `querySelectorAll` retorna todos os elementos correspondentes." }
+                ]
+            },
+            {
+                badge: "Manipulação",
+                title: "5. Qual propriedade modifica de forma segura o texto visível de um nó, sem interpretar tags HTML?",
+                options: [
+                    { text: "textContent", correct: true, justification: "Correto! `textContent` altera ou lê exclusivamente o texto bruto do nó de forma segura, ignorando códigos HTML maliciosos." },
+                    { text: "innerHTML", correct: false, justification: "Incorreto. `innerHTML` interpreta marcações HTML ativamente." },
+                    { text: "value", correct: false, justification: "Incorreto. `value` é utilizado em campos de formulários." }
+                ]
+            },
+            {
+                badge: "Manipulação",
+                title: "6. O que acontece ao usar a propriedade innerHTML = '<strong>Olá</strong>' em um elemento?",
+                options: [
+                    { text: "Escreve o texto puro incluindo as tags de forma literal na tela.", correct: false, justification: "Incorreto. Isso ocorre com o textContent." },
+                    { text: "Renderiza a palavra 'Olá' em negrito, interpretando o HTML.", correct: true, justification: "Correto! `innerHTML` interpreta a string enviada como marcação HTML real, transformando a tag `<strong>` em negrito visual." },
+                    { text: "Apaga o elemento inteiro do documento por segurança.", correct: false, justification: "Incorreto. O elemento permanece, tendo seu conteúdo interno substituído." }
+                ]
+            },
+            {
+                badge: "Estilos",
+                title: "7. Qual propriedade do elemento usamos para alterar diretamente propriedades CSS individuais (ex: cor de fundo)?",
+                options: [
+                    { text: "element.css", correct: false, justification: "Incorreto. A propriedade `.css` não existe nativamente para estilos inline." },
+                    { text: "element.style", correct: true, justification: "Correto! A propriedade `.style` dá acesso direto ao estilo inline do elemento para manipulação individual de propriedades visuais." },
+                    { text: "element.class", correct: false, justification: "Incorreto. Para classes usamos `className` ou `classList`." }
+                ]
+            },
+            {
+                badge: "Estilos",
+                title: "8. Como se escreve a propriedade CSS background-color ao manipulá-la via JavaScript?",
+                options: [
+                    { text: "backgroundColor (CamelCase)", correct: true, justification: "Correto! No JavaScript, propriedades compostas do CSS perdem o hífen e passam a ser escritas em formato CamelCase (`backgroundColor`)." },
+                    { text: "background-color (Igual ao CSS)", correct: false, justification: "Incorreto. O hífen causaria um erro de sintaxe de operador de subtração no JS." },
+                    { text: "BackgroundColor (Primeira maiúscula)", correct: false, justification: "Incorreto. A primeira letra deve ser minúscula (camelCase)." }
+                ]
+            },
+            {
+                badge: "Criação de Nós",
+                title: "9. Qual método cria um novo elemento HTML na memória (ex: uma nova tag 'p'), antes de inseri-lo na página?",
+                options: [
+                    { text: "document.newElement('p')", correct: false, justification: "Incorreto. Este método não faz parte da especificação." },
+                    { text: "document.createElement('p')", correct: true, justification: "Correto! `document.createElement('tag')` instancia um novo elemento na memória do navegador antes de ele ser inserido na árvore visível." },
+                    { text: "document.appendElement('p')", correct: false, justification: "Incorreto. O método de inclusão é o appendChild." }
+                ]
+            },
+            {
+                badge: "Criação de Nós",
+                title: "10. Qual método adiciona um nó filho ao final da lista de filhos de um elemento pai?",
+                options: [
+                    { text: "parentElement.appendChild(childNode)", correct: true, justification: "Correto! `appendChild()` insere um nó criado como o último filho do elemento pai especificado." },
+                    { text: "parentElement.insertChild(childNode)", correct: false, justification: "Incorreto. A nomenclatura correta utiliza appendChild." },
+                    { text: "parentElement.addToEnd(childNode)", correct: false, justification: "Incorreto. Este método não existe na API padrão." }
+                ]
+            },
+            {
+                badge: "Remoção",
+                title: "11. Como você remove permanentemente um elemento selecionado do DOM?",
+                options: [
+                    { text: "elemento.delete()", correct: false, justification: "Incorreto. `delete` é um operador para propriedades de objetos." },
+                    { text: "elemento.clear()", correct: false, justification: "Incorreto. Não é o método padrão de exclusão de nós." },
+                    { text: "elemento.remove()", correct: true, justification: "Correto! O método `.remove()` exclui diretamente o elemento selecionado da árvore do DOM de forma limpa." }
+                ]
+            },
+            {
+                badge: "Eventos",
+                title: "12. Qual método é utilizado para escutar e reagir a eventos (como cliques, envios de formulário, teclas)?",
+                options: [
+                    { text: "element.addEventListener()", correct: true, justification: "Correto! `addEventListener()` é a forma moderna, recomendada e flexível de registrar ouvintes de eventos em elementos." },
+                    { text: "element.onEvent()", correct: false, justification: "Incorreto. Eventos inline legados usam prefixos como `onclick`, mas o método padrão de escuta é outro." },
+                    { text: "element.listen()", correct: false, justification: "Incorreto. `listen` não pertence à API nativa do DOM." }
+                ]
+            },
+            {
+                badge: "Classes",
+                title: "13. Como você pode adicionar ou remover dinamicamente uma classe CSS de um elemento com facilidade?",
+                options: [
+                    { text: "element.classNameList", correct: false, justification: "Incorreto. A nomenclatura correta é classList." },
+                    { text: "element.classList (com add, remove, toggle)", correct: true, justification: "Correto! `classList` fornece métodos práticos como `.add()`, `.remove()` e `.toggle()` para gerenciar classes CSS de forma limpa." },
+                    { text: "element.cssList", correct: false, justification: "Incorreto. A propriedade correta gerencia classes e não estilos gerais de css." }
+                ]
+            },
+            {
+                badge: "Formulários",
+                title: "14. Qual propriedade obtém ou define o valor inserido em um campo de formulário (<input>)?",
+                options: [
+                    { text: "textContent", correct: false, justification: "Incorreto. `textContent` lê o texto de nós de texto normais, não o valor de inputs." },
+                    { text: "innerHTML", correct: false, justification: "Incorreto. Inputs não possuem conteúdo HTML interno renderizável dessa forma." },
+                    { text: "value", correct: true, justification: "Correto! A propriedade `.value` obtém ou define o conteúdo atual inserido em campos interativos como inputs, textareas e selects." }
+                ]
+            },
+            {
+                badge: "Arquitetura",
+                title: "15. O que significa quando dizemos que o DOM possui uma estrutura de 'Árvore' (Tree)?",
+                options: [
+                    { text: "Que o código precisa ser executado ao ar livre em servidores remotos.", correct: false, justification: "Incorreto. Nada tem a ver com infraestrutura física." },
+                    { text: "Que os elementos se organizam em nós pais, filhos e irmãos hierarquicamente.", correct: true, justification: "Correto! O DOM modela a página como uma árvore hierárquica formada por nós conectados a partir de uma raiz (document), ramificando pais, filhos e irmãos." },
+                    { text: "Que o arquivo precisa obrigatoriamente ter extensão .tree.", correct: false, justification: "Incorreto. Arquivos HTML mantêm a extensão padrão .html." }
+                ]
+            }
+        ];
 
-        const incorrectJustifications = {
-            1: "Incorreto. A sigla correta é Document Object Model.",
-            2: "Incorreto. O objeto global padrão é o `document`.",
-            3: "Incorreto. Para selecionar apenas o primeiro elemento usa-se `document.querySelector()`.",
-            4: "Incorreto. O seletor correto precisa conter o ponto indicativo de classe: `document.querySelectorAll('.item')`.",
-            5: "Incorreto. Para alterar texto puro sem interpretar HTML com segurança, utilizamos `textContent`.",
-            6: "Incorreto. `innerHTML` interpreta tags HTML ativamente, renderizando o texto em negrito ao invés de mostrá-lo como texto literal.",
-            7: "Incorreto. Modificamos estilos individuais através da propriedade `.style` do elemento.",
-            8: "Incorreto. Em JS, propriedades CSS com hífens são convertidas para o padrão CamelCase (`backgroundColor`).",
-            9: "Incorreto. O método correto para instanciar um elemento na memória é `document.createElement()`.",
-            10: "Incorreto. O método para anexar um filho ao final é `appendChild()`.",
-            11: "Incorreto. O método padrão e atual para apagar um elemento é `.remove()`.",
-            12: "Incorreto. O método padrão para gerenciar eventos é `addEventListener()`.",
-            13: "Correto seria `classList`. Ela facilita muito a manipulação de classes com `.add()`, `.remove()` e `.toggle()`.",
-            14: "Incorreto. O valor digitado em inputs é acessado ou alterado através da propriedade `.value`.",
-            15: "Incorreto. A estrutura de árvore refere-se à relação hierárquica de nós pais, filhos e irmãos."
-        };
+        let currentIndex = 0;
+        let score = 0;
+        let answeredCurrent = false;
 
-        const quizForm = document.getElementById('quizForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const scoreContainer = document.getElementById('scoreContainer');
-        const currentScoreSpan = document.getElementById('currentScore');
-        const resultBox = document.getElementById('resultBox');
+        const scoreCountEl = document.getElementById('scoreCount');
+        const currentQuestionNumEl = document.getElementById('currentQuestionNum');
+        const progressBarEl = document.getElementById('progressBar');
+        const questionBadgeEl = document.getElementById('questionBadge');
+        const questionTitleEl = document.getElementById('questionTitle');
+        const optionsContainerEl = document.getElementById('optionsContainer');
+        const feedbackSectionEl = document.getElementById('feedbackSection');
+        const feedbackHeaderEl = document.getElementById('feedbackHeader');
+        const feedbackTextEl = document.getElementById('feedbackText');
+        const nextBtn = document.getElementById('nextBtn');
+        const gameCard = document.getElementById('gameCard');
+        const completionScreen = document.getElementById('completionScreen');
+        const finalScoreEl = document.getElementById('finalScore');
+        const restartGameBtn = document.getElementById('restartGameBtn');
 
-        quizForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+        function loadQuestion() {
+            answeredCurrent = false;
+            feedbackSectionEl.classList.add('hidden');
             
-            let score = 0;
-            let answeredCount = 0;
+            const q = questions[currentIndex];
+            questionBadgeEl.textContent = q.badge;
+            questionTitleEl.textContent = q.title;
+            currentQuestionNumEl.textContent = currentIndex + 1;
+            
+            // Atualizar barra de progresso
+            const progressPercent = ((currentIndex + 1) / questions.length) * 100;
+            progressBarEl.style.width = `${progressPercent}%`;
 
-            const questionBlocks = document.querySelectorAll('.question-block');
+            optionsContainerEl.innerHTML = '';
+            
+            // Embaralhar as opções visualmente para dar mais dinamismo de jogo
+            const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
 
-            questionBlocks.forEach(block => {
-                const qNum = block.getAttribute('data-question');
-                const selectedInput = block.querySelector(`input[name="q${qNum}"]:checked`);
-                const justificationDiv = block.querySelector('.justification');
+            shuffledOptions.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = "w-full text-left p-4 sm:p-4 rounded-xl border-2 border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 font-semibold text-slate-700 transition transform active:scale-98 flex items-center justify-between text-sm sm:text-base";
+                btn.innerHTML = `<span>${opt.text}</span> <span class="text-slate-300 font-normal">Selecionar</span>`;
+                
+                btn.addEventListener('click', () => {
+                    if (answeredCurrent) return; // Evita duplo clique
+                    answeredCurrent = true;
+                    selectOption(opt, btn, q.options);
+                });
 
-                // Remove estados anteriores
-                block.classList.remove('correct-glow', 'incorrect-glow');
-                justificationDiv.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
-
-                if (selectedInput) {
-                    answeredCount++;
-                    if (selectedInput.value === 'correct') {
-                        score++;
-                        block.classList.add('correct-glow');
-                        justificationDiv.classList.add('bg-emerald-100', 'text-emerald-800');
-                        justificationDiv.innerHTML = `<strong>Acertou!</strong> ${justifications[qNum]}`;
-                    } else {
-                        block.classList.add('incorrect-glow');
-                        justificationDiv.classList.add('bg-rose-100', 'text-rose-800');
-                        justificationDiv.innerHTML = `<strong>Incorreto.</strong> ${incorrectJustifications[qNum]}`;
-                    }
-                } else {
-                    // Caso não tenha respondido a pergunta
-                    justificationDiv.classList.remove('hidden');
-                    justificationDiv.classList.add('bg-amber-100', 'text-amber-800');
-                    justificationDiv.innerHTML = `<strong>Atenção:</strong> Você não respondeu esta questão.`;
-                }
+                optionsContainerEl.appendChild(btn);
             });
+        }
 
-            if (answeredCount === 0) {
-                alert("Por favor, responda pelo menos algumas questões antes de enviar.");
-                return;
-            }
+        function selectOption(selectedOpt, selectedButton, allOptions) {
+            const allOptionButtons = optionsContainerEl.querySelectorAll('button');
+            
+            // Desativar todos os botões após a seleção
+            allOptionButtons.forEach(b => b.disabled = true);
 
-            // Mostra pontuação
-            currentScoreSpan.textContent = score;
-            scoreContainer.classList.remove('hidden');
-
-            // Exibe resultado geral estilizado
-            resultBox.classList.remove('hidden');
-            if (score === 15) {
-                resultBox.className = "mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm bg-emerald-100 text-emerald-800 border border-emerald-300";
-                resultBox.innerHTML = "🏆 Excelente! Gabaritou todas as 15 questões. Você domina completamente os conceitos do DOM!";
-            } else if (score >= 10) {
-                resultBox.className = "mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm bg-blue-100 text-blue-800 border border-blue-300";
-                resultBox.textContent = `👏 Muito bom! Você acertou ${score} de 15 questões. Continue praticando para masterizar o DOM.`;
+            if (selectedOpt.correct) {
+                score++;
+                scoreCountEl.textContent = score;
+                selectedButton.className = "w-full text-left p-4 sm:p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-900 flex items-center justify-between text-sm sm:text-base shadow-sm";
+                selectedButton.querySelector('span:last-child').textContent = "Correto! 🎯";
+                selectedButton.querySelector('span:last-child').className = "text-emerald-600 font-bold";
+                
+                feedbackHeaderEl.textContent = "🎉 Resposta Correta!";
+                feedbackHeaderEl.className = "font-black text-lg mb-1 text-emerald-600";
             } else {
-                resultBox.className = "mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm bg-amber-100 text-amber-800 border border-amber-300";
-                resultBox.textContent = `💡 Você acertou ${score} de 15 questões. Revise as justificativas acima para fortalecer seus fundamentos de DOM!`;
+                selectedButton.className = "w-full text-left p-4 sm:p-4 rounded-xl border-2 border-rose-500 bg-rose-50 font-bold text-rose-900 flex items-center justify-between text-sm sm:text-base shadow-sm animate-shake";
+                selectedButton.querySelector('span:last-child').textContent = "Incorreto ❌";
+                selectedButton.querySelector('span:last-child').className = "text-rose-600 font-bold";
+
+                // Destacar qual era a correta
+                allOptionButtons.forEach(b => {
+                    const textSpan = b.querySelector('span:first-child').textContent;
+                    const match = allOptions.find(o => o.text === textSpan);
+                    if (match && match.correct) {
+                        b.className = "w-full text-left p-4 sm:p-4 rounded-xl border-2 border-emerald-400 bg-emerald-50/50 font-bold text-emerald-900 flex items-center justify-between text-sm sm:text-base";
+                    }
+                });
+
+                feedbackHeaderEl.textContent = "💡 Resposta Incorreta";
+                feedbackHeaderEl.className = "font-black text-lg mb-1 text-rose-600";
             }
 
-            // Alterna botões
-            submitBtn.classList.add('hidden');
-            resetBtn.classList.remove('hidden');
+            feedbackTextEl.textContent = selectedOpt.justification;
+            feedbackSectionEl.classList.remove('hidden');
+            feedbackSectionEl.scrollIntoView({ behavior: 'smooth' });
+        }
 
-            // Rolar suavemente para o resultado
-            resultBox.scrollIntoView({ behavior: 'smooth' });
+        nextBtn.addEventListener('click', () => {
+            currentIndex++;
+            if (currentIndex < questions.length) {
+                loadQuestion();
+                gameCard.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showCompletionScreen();
+            }
         });
+
+        function showCompletionScreen() {
+            gameCard.classList.add('hidden');
+            document.querySelector('header').classList.add('hidden');
+            progressBarEl.parentElement.classList.add('hidden');
+            
+            finalScoreEl.textContent = score;
+            
+            const completionEmoji = document.getElementById('completionEmoji');
+            const completionMessage = document.getElementById('completionMessage');
+
+            if (score === 15) {
+                completionEmoji.textContent = "🏆👑";
+                completionMessage.textContent = "Perfeito! Você gabaritou todas as 15 questões e é um verdadeiro Mestre do DOM!";
+            } else if (score >= 10) {
+                completionEmoji.textContent = "🌟🎉";
+                completionMessage.textContent = `Excelente trabalho! Você acertou ${score} de 15 questões. Seu conhecimento de DOM está incrível.`;
+            } else {
+                completionEmoji.textContent = "💡🚀";
+                completionMessage.textContent = `Você concluiu o desafio com ${score} acertos! Continue praticando para masterizar todos os conceitos do DOM.`;
+            }
+
+            completionScreen.classList.remove('hidden');
+            completionScreen.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        restartGameBtn.addEventListener('click', () => {
+            currentIndex = 0;
+            score = 0;
+            scoreCountEl.textContent = 0;
+            completionScreen.classList.add('hidden');
+            gameCard.classList.remove('hidden');
+            document.querySelector('header').classList.remove('hidden');
+            progressBarEl.parentElement.classList.remove('hidden');
+            loadQuestion();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Inicializar o jogo ao carregar
+        window.onload = function() {
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>
