@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de IMC com Histórico Retrátil</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+      position: relative;
+    }
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #333;
+    }
+    .btn-toggle-history {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn-toggle-history:hover {
+      background: #0056b3;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .btn-calc {
+      width: 100%;
+      padding: 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .btn-calc:hover {
+      background-color: #218838;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      display: none;
+    }
+
+    /* Cores de status */
+    .abaixo { background-color: #ffeeba; color: #856404; }
+    .normal { background-color: #d4edda; color: #155724; }
+    .sobrepeso { background-color: #fff3cd; color: #856404; }
+    .obesidade { background-color: #f8d7da; color: #721c24; }
+
+    /* Fundo escuro quando a aba abre */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+      z-index: 99;
+    }
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Painel Retrátil (Drawer) */
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -360px; /* Escondido fora da tela */
+      width: 350px;
+      max-width: 85vw;
+      height: 100vh;
+      background: #fff;
+      box-shadow: -4px 0 15px rgba(0,0,0,0.15);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s ease-in-out;
+    }
+    .drawer.open {
+      right: 0; /* Desliza para dentro da tela */
+    }
+    .drawer-header {
+      padding: 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .drawer-header h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #333;
+    }
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+    }
+    .drawer-body {
+      padding: 15px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .drawer-footer {
+      padding: 15px;
+      border-top: 1px solid #ddd;
+      background: #f8f9fa;
+    }
+    .btn-clear {
+      width: 100%;
+      padding: 10px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-clear:hover {
+      background-color: #c82333;
+    }
+
+    /* Lista do Histórico */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 5px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Overlay para fechar ao clicar fora -->
+  <div id="overlay" class="overlay"></div>
+
+  <div class="container">
+    <div class="header-actions">
+      <h1>Calculadora de IMC</h1>
+      <button id="btn-open-drawer" class="btn-toggle-history">📋 Histórico</button>
+    </div>
+    
+    <form id="imc-form">
+      <div class="form-group">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" placeholder="Digite seu nome" required>
+      </div>
+      <div class="form-group">
+        <label for="peso">Peso (kg):</label>
+        <input type="number" id="peso" step="0.1" min="1" placeholder="Ex: 75.5" required>
+      </div>
+      <div class="form-group">
+        <label for="altura">Altura (m):</label>
+        <input type="number" id="altura" step="0.01" min="0.5" max="2.5" placeholder="Ex: 1.75" required>
+      </div>
+      <button type="submit" class="btn-calc">Calcular e Salvar</button>
+    </form>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <!-- Aba Retrátil (Drawer) -->
+  <aside id="drawer" class="drawer">
+    <div class="drawer-header">
+      <h2>Histórico de Registros</h2>
+      <button id="btn-close-drawer" class="btn-close">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <ul id="history-list"></ul>
+    </div>
+    <div class="drawer-footer">
+      <button id="btn-clear-history" class="btn-clear">Limpar Histórico</button>
+    </div>
+  </aside>
+
+  <script>
+    const form = document.getElementById('imc-form');
+    const resultDiv = document.getElementById('result');
+    const historyList = document.getElementById('history-list');
+    const btnClearHistory = document.getElementById('btn-clear-history');
+
+    // Elementos da Aba Retrátil
+    const drawer = document.getElementById('drawer');
+    const overlay = document.getElementById('overlay');
+    const btnOpenDrawer = document.getElementById('btn-open-drawer');
+    const btnCloseDrawer = document.getElementById('btn-close-drawer');
+
+    const STORAGE_KEY = 'imc_historico_v1';
+
+    // Controle de abertura/fechamento do Drawer
+    function openDrawer() {
+      drawer.classList.add('open');
+      overlay.classList.add('active');
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      overlay.classList.remove('active');
+    }
+
+    btnOpenDrawer.addEventListener('click', openDrawer);
+    btnCloseDrawer.addEventListener('click', closeDrawer);
+    overlay.addEventListener('click', closeDrawer);
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', renderHistory);
+
+    // Manipulador de envio do formulário
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value.trim();
+      const peso = parseFloat(document.getElementById('peso').value);
+      const altura = parseFloat(document.getElementById('altura').value);
+
+      if (!nome || isNaN(peso) || isNaN(altura) || altura <= 0) return;
+
+      const imc = peso / (altura * altura);
+      const classificacao = getClassificacao(imc);
+
+      displayResult(imc, classificacao.texto, classificacao.classeCss);
+
+      const registro = {
+        id: Date.now(),
+        data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        nome,
+        peso,
+        altura,
+        imc: imc.toFixed(2),
+        classificacao: classificacao.texto
+      };
+
+      saveRecord(registro);
+      renderHistory();
+      form.reset();
+    });
+
+    function getClassificacao(imc) {
+      if (imc < 18.5) return { texto: 'Abaixo do peso', classeCss: 'abaixo' };
+      if (imc < 24.9) return { texto: 'Peso normal', classeCss: 'normal' };
+      if (imc < 29.9) return { texto: 'Sobrepeso', classeCss: 'sobrepeso' };
+      return { texto: 'Obesidade', classeCss: 'obesidade' };
+    }
+
+    function displayResult(imc, classificacao, classeCss) {
+      resultDiv.className = `result ${classeCss}`;
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = `Seu IMC é <strong>${imc.toFixed(2)}</strong> (${classificacao})`;
+    }
+
+    function getRecords() {
+      const records = localStorage.getItem(STORAGE_KEY);
+      return records ? JSON.parse(records) : [];
+    }
+
+    function saveRecord(record) {
+      const records = getRecords();
+      records.unshift(record);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function renderHistory() {
+      const records = getRecords();
+      historyList.innerHTML = '';
+
+      if (records.length === 0) {
+        historyList.innerHTML = '<li style="justify-content:center; color:#888;">Nenhum registro no histórico.</li>';
+        return;
+      }
+
+      records.forEach(rec => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <div>
+            <strong>${rec.nome}</strong><br>
+            <small style="color:#666">${rec.data}</small><br>
+            <small>${rec.peso} kg | ${rec.altura} m</small>
+          </div>
+          <div style="text-align: right;">
+            <strong style="font-size: 16px;">${rec.imc}</strong><br>
+            <small>${rec.classificacao}</small>
+          </div>
+        `;
+        historyList.appendChild(li);
+      });
+    }
+
+    btnClearHistory.addEventListener('click', () => {
+      if (confirm('Deseja realmente apagar todo o histórico?')) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderHistory();
+      }
+    });
+  </script>
+</body>
+</html>
