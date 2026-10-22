@@ -4,234 +4,492 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Quiz: Princípios do DOM</title>
+    <!-- Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            line-height: 1.6;
-            margin: 0;
-            padding: 30px 10px;
+            font-family: 'Inter', sans-serif;
         }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        .correct-glow {
+            border-color: #10b981 !important;
+            background-color: #ecfdf5 !important;
         }
-        h1 {
-            text-align: center;
-            color: #1e3799;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            text-align: center;
-            color: #60a5fa;
-            margin-bottom: 40px;
-            font-weight: 500;
-        }
-        .question {
-            margin-bottom: 30px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .question-title {
-            font-weight: 600;
-            font-size: 1.15em;
-            color: #1e293b;
-            margin-bottom: 15px;
-        }
-        .options label {
-            display: flex;
-            align-items: center;
-            background: #f8fafc;
-            padding: 14px;
-            margin: 10px 0;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .options label:hover {
-            background: #f1f5f9;
-            border-color: #cbd5e1;
-        }
-        .options input[type="radio"] {
-            margin-right: 12px;
-            transform: scale(1.2);
-            cursor: pointer;
-        }
-        .actions {
-            margin-top: 40px;
-            display: flex;
-            gap: 15px;
-        }
-        button {
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-        }
-        button:active {
-            transform: scale(0.98);
-        }
-        #submitBtn {
-            background-color: #10b981;
-            color: white;
-        }
-        #submitBtn:hover {
-            background-color: #059669;
-        }
-        #resetBtn {
-            background-color: #ef4444;
-            color: white;
-            display: none;
-        }
-        #resetBtn:hover {
-            background-color: #dc2626;
-        }
-        #result {
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 1.3em;
-            font-weight: bold;
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        .success { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-        .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .incorrect-glow {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-800 min-h-screen py-10 px-4">
 
-<div class="container">
-    <h1>Desafio do DOM 🌳</h1>
-    <div class="subtitle">Teste seus conhecimentos com 15 perguntas fundamentais</div>
-    
-    <form id="quizForm">
-        <!-- Q1 -->
-        <div class="question">
-            <div class="question-title">1. O que significa a sigla DOM?</div>
-            <div class="options">
-                <label><input type="radio" name="q1" value="correct"> Document Object Model</label>
-                <label><input type="radio" name="q1" value="incorrect"> Data Object Management</label>
-                <label><input type="radio" name="q1" value="incorrect"> Digital Ordered Mainframe</label>
+    <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-6 sm:p-10 border border-slate-200">
+        <!-- Cabeçalho -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-900 mb-2">Desafio do DOM 🌳</h1>
+            <p class="text-blue-500 font-medium text-sm sm:text-base">Teste seus conhecimentos com 15 perguntas fundamentais e aprenda com justificativas detalhadas</p>
+            <div id="scoreContainer" class="hidden mt-4 inline-block bg-blue-50 text-blue-700 px-4 py-2 rounded-full font-bold text-sm">
+                Pontuação: <span id="currentScore">0</span> / 15
             </div>
-        </div>
-
-        <!-- Q2 -->
-        <div class="question">
-            <div class="question-title">2. Qual é o objeto global fornecido pelo navegador que serve como ponto de entrada para o DOM?</div>
-            <div class="options">
-                <label><input type="radio" name="q2" value="incorrect"> window.dom</label>
-                <label><input type="radio" name="q2" value="correct"> document</label>
-                <label><input type="radio" name="q2" value="incorrect"> html</label>
+        </header>
+        
+        <!-- Formulário do Quiz -->
+        <form id="quizForm" class="space-y-8">
+            
+            <!-- Pergunta 1 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="1">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    1. O que significa a sigla DOM?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q1" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Document Object Model</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q1" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Data Object Management</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q1" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Digital Ordered Mainframe</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q3 -->
-        <div class="question">
-            <div class="question-title">3. Qual método seleciona APENAS o primeiro elemento correspondente a um seletor CSS específico?</div>
-            <div class="options">
-                <label><input type="radio" name="q3" value="incorrect"> document.querySelectorAll()</label>
-                <label><input type="radio" name="q3" value="correct"> document.querySelector()</label>
-                <label><input type="radio" name="q3" value="incorrect"> document.getElementBySelector()</label>
+            <!-- Pergunta 2 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="2">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    2. Qual é o objeto global fornecido pelo navegador que serve como ponto de entrada para o DOM?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q2" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">window.dom</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q2" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q2" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">html</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q4 -->
-        <div class="question">
-            <div class="question-title">4. Para selecionar todos os elementos com a classe "item", qual sintaxe está correta?</div>
-            <div class="options">
-                <label><input type="radio" name="q4" value="incorrect"> document.querySelectorAll('item')</label>
-                <label><input type="radio" name="q4" value="incorrect"> document.getElementById('.item')</label>
-                <label><input type="radio" name="q4" value="correct"> document.querySelectorAll('.item')</label>
+            <!-- Pergunta 3 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="3">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    3. Qual método seleciona APENAS o primeiro elemento correspondente a um seletor CSS específico?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q3" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.querySelectorAll()</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q3" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.querySelector()</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q3" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.getElementBySelector()</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q5 -->
-        <div class="question">
-            <div class="question-title">5. Qual propriedade modifica de forma segura o texto visível de um nó, sem interpretar tags HTML?</div>
-            <div class="options">
-                <label><input type="radio" name="q5" value="correct"> textContent</label>
-                <label><input type="radio" name="q5" value="incorrect"> innerHTML</label>
-                <label><input type="radio" name="q5" value="incorrect"> value</label>
+            <!-- Pergunta 4 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="4">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    4. Para selecionar todos os elementos com a classe "item", qual sintaxe está correta?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q4" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.querySelectorAll('item')</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q4" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.getElementById('.item')</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q4" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.querySelectorAll('.item')</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q6 -->
-        <div class="question">
-            <div class="question-title">6. O que acontece ao usar a propriedade `innerHTML = "<strong>Olá</strong>"` em um elemento?</div>
-            <div class="options">
-                <label><input type="radio" name="q6" value="incorrect"> Escreve o texto puro incluindo as tags de forma literal na tela.</label>
-                <label><input type="radio" name="q6" value="correct"> Renderiza a palavra "Olá" em negrito, interpretando o HTML.</label>
-                <label><input type="radio" name="q6" value="incorrect"> Apaga o elemento inteiro do documento por segurança.</label>
+            <!-- Pergunta 5 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="5">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    5. Qual propriedade modifica de forma segura o texto visível de um nó, sem interpretar tags HTML?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q5" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">textContent</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q5" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">innerHTML</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q5" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">value</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q7 -->
-        <div class="question">
-            <div class="question-title">7. Qual propriedade do elemento usamos para alterar diretamente propriedades CSS individuais (ex: cor de fundo)?</div>
-            <div class="options">
-                <label><input type="radio" name="q7" value="incorrect"> element.css</label>
-                <label><input type="radio" name="q7" value="correct"> element.style</label>
-                <label><input type="radio" name="q7" value="incorrect"> element.class</label>
+            <!-- Pergunta 6 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="6">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    6. O que acontece ao usar a propriedade `innerHTML = "&lt;strong&gt;Olá&lt;/strong&gt;"` em um elemento?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q6" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Escreve o texto puro incluindo as tags de forma literal na tela.</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q6" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Renderiza a palavra "Olá" em negrito, interpretando o HTML.</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q6" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Apaga o elemento inteiro do documento por segurança.</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q8 -->
-        <div class="question">
-            <div class="question-title">8. Como se escreve a propriedade CSS `background-color` ao manipulá-la via JavaScript?</div>
-            <div class="options">
-                <label><input type="radio" name="q8" value="correct"> backgroundColor (CamelCase)</label>
-                <label><input type="radio" name="q8" value="incorrect"> background-color (Igual ao CSS)</label>
-                <label><input type="radio" name="q8" value="incorrect"> BackgroundColor (Primeira maiúscula)</label>
+            <!-- Pergunta 7 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="7">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    7. Qual propriedade do elemento usamos para alterar diretamente propriedades CSS individuais (ex: cor de fundo)?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q7" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.css</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q7" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.style</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q7" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.class</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q9 -->
-        <div class="question">
-            <div class="question-title">9. Qual método cria um novo elemento HTML na memória (ex: uma nova tag 'p'), antes de inseri-lo na página?</div>
-            <div class="options">
-                <label><input type="radio" name="q9" value="incorrect"> document.newElement('p')</label>
-                <label><input type="radio" name="q9" value="correct"> document.createElement('p')</label>
-                <label><input type="radio" name="q9" value="incorrect"> document.appendElement('p')</label>
+            <!-- Pergunta 8 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="8">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    8. Como se escreve a propriedade CSS `background-color` ao manipulá-la via JavaScript?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q8" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">backgroundColor (CamelCase)</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q8" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">background-color (Igual ao CSS)</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q8" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">BackgroundColor (Primeira maiúscula)</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q10 -->
-        <div class="question">
-            <div class="question-title">10. Qual método adiciona um nó filho ao final da lista de filhos de um elemento pai?</div>
-            <div class="options">
-                <label><input type="radio" name="q10" value="correct"> parentElement.appendChild(childNode)</label>
-                <label><input type="radio" name="q10" value="incorrect"> parentElement.insertChild(childNode)</label>
-                <label><input type="radio" name="q10" value="incorrect"> parentElement.addToEnd(childNode)</label>
+            <!-- Pergunta 9 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="9">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    9. Qual método cria um novo elemento HTML na memória (ex: uma nova tag 'p'), antes de inseri-lo na página?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q9" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.newElement('p')</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q9" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.createElement('p')</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q9" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">document.appendElement('p')</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q11 -->
-        <div class="question">
-            <div class="question-title">11. Como você remove permanentemente um elemento selecionado do DOM?</div>
-            <div class="options">
-                <label><input type="radio" name="q11" value="incorrect"> elemento.delete()</label>
-                <label><input type="radio" name="q11" value="incorrect"> elemento.clear()</label>
-                <label><input type="radio" name="q11" value="correct"> elemento.remove()</label>
+            <!-- Pergunta 10 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="10">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    10. Qual método adiciona um nó filho ao final da lista de filhos de um elemento pai?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q10" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">parentElement.appendChild(childNode)</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q10" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">parentElement.insertChild(childNode)</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q10" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">parentElement.addToEnd(childNode)</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
             </div>
-        </div>
 
-        <!-- Q12 -->
-        <div class="question">
+            <!-- Pergunta 11 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="11">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    11. Como você remove permanentemente um elemento selecionado do DOM?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q11" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">elemento.delete()</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q11" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">elemento.clear()</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q11" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">elemento.remove()</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
+            </div>
+
+            <!-- Pergunta 12 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="12">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    12. Qual método é utilizado para escutar e reagir a eventos (como cliques, envios de formulário, teclas pressionadas)?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q12" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.addEventListener()</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q12" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.onEvent()</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q12" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.listen()</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
+            </div>
+
+            <!-- Pergunta 13 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="13">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    13. Como você pode adicionar ou remover dinamicamente uma classe CSS de um elemento com facilidade?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q13" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.classNameList</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q13" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.classList (com add, remove, toggle)</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q13" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">element.cssList</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
+            </div>
+
+            <!-- Pergunta 14 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="14">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    14. Qual propriedade obtém ou define o valor inserido em um campo de formulário (<code class="bg-slate-200 px-1.5 py-0.5 rounded text-xs">&lt;input&gt;</code>)?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q14" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">textContent</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q14" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">innerHTML</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q14" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">value</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
+            </div>
+
+            <!-- Pergunta 15 -->
+            <div class="question-block p-4 sm:p-6 rounded-xl border border-slate-200 bg-slate-50 transition-all duration-200" data-question="15">
+                <div class="question-title font-semibold text-base sm:text-lg text-slate-900 mb-4">
+                    15. O que significa quando dizemos que o DOM possui uma estrutura de "Árvore" (Tree)?
+                </div>
+                <div class="options space-y-3">
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q15" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Que o código precisa ser executado ao ar livre em servidores remotos.</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q15" value="correct" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Que os elementos se organizam em nós pais, filhos e irmãos hierarquicamente.</span>
+                    </label>
+                    <label class="flex items-center p-3 sm:p-4 bg-white border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                        <input type="radio" name="q15" value="incorrect" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-3 text-sm sm:text-base">Que o arquivo precisa obrigatoriamente ter extensão .tree.</span>
+                    </label>
+                </div>
+                <div class="justification hidden mt-4 p-4 rounded-lg text-sm font-medium"></div>
+            </div>
+
+            <!-- Ações -->
+            <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                <button type="submit" id="submitBtn" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95 text-lg">
+                    Conferir Respostas 🎯
+                </button>
+                <button type="button" id="resetBtn" class="hidden w-full py-4 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-lg transition transform active:scale-95 text-lg">
+                    Reiniciar Quiz 🔄
+                </button>
+            </div>
+        </form>
+
+        <!-- Resultado Final Global -->
+        <div id="resultBox" class="hidden mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm"></div>
+    </div>
+
+    <!-- Script de Interatividade e Justificativas -->
+    <script>
+        // Dicionário contendo as justificativas explicativas para cada pergunta
+        const justifications = {
+            1: "Correto! DOM significa Document Object Model (Modelo de Objeto de Documento), a interface que permite ao JS interagir com páginas web.",
+            2: "Correto! O objeto global `document` representa toda a página web carregada no navegador e é o ponto de partida para consultas e manipulações.",
+            3: "Correto! O `document.querySelector()` retorna o primeiro elemento que corresponde ao seletor CSS fornecido.",
+            4: "Correto! O `document.querySelectorAll('.item')` busca por classes (indicadas pelo ponto `.`) e retorna uma NodeList com todos os elementos encontrados.",
+            5: "Correto! `textContent` altera ou lê apenas o texto bruto do nó de forma segura, sem analisar caracteres como tags HTML.",
+            6: "Correto! `innerHTML` interpreta o conteúdo inserido como marcação HTML real, transformando strings como `<strong>` em elementos estilizados.",
+            7: "Correto! A propriedade `.style` dá acesso direto ao estilo inline do elemento para manipulação de propriedades visuais individuais.",
+            8: "Correto! No JavaScript, as propriedades compostas do CSS perdem o hífen e passam a ser escritas em formato CamelCase (`backgroundColor`).",
+            9: "Correto! `document.createElement('tag')` instancia um novo elemento na memória do navegador antes de ele ser inserido na página.",
+            10: "Correto! `appendChild()` insere um nó como o último filho do elemento pai especificado.",
+            11: "Correto! O método `.remove()` exclui diretamente o elemento selecionado da árvore do DOM.",
+            12: "Correto! `addEventListener()` é a forma moderna e recomendada de registrar ouvintes de eventos em elementos do DOM.",
+            13: "Correto! `classList` fornece métodos práticos como `.add()`, `.remove()` e `.toggle()` para gerenciar classes CSS de forma limpa.",
+            14: "Correto! A propriedade `.value` obtém ou define o conteúdo atual inserido em campos interativos como inputs, textareas e selects.",
+            15: "Correto! O DOM modela a página como uma árvore hierárquica formada por nós conectados (pais, filhos e irmãos)."
+        };
+
+        const incorrectJustifications = {
+            1: "Incorreto. A sigla correta é Document Object Model.",
+            2: "Incorreto. O objeto global padrão é o `document`.",
+            3: "Incorreto. Para selecionar apenas o primeiro elemento usa-se `document.querySelector()`.",
+            4: "Incorreto. O seletor correto precisa conter o ponto indicativo de classe: `document.querySelectorAll('.item')`.",
+            5: "Incorreto. Para alterar texto puro sem interpretar HTML com segurança, utilizamos `textContent`.",
+            6: "Incorreto. `innerHTML` interpreta tags HTML ativamente, renderizando o texto em negrito ao invés de mostrá-lo como texto literal.",
+            7: "Incorreto. Modificamos estilos individuais através da propriedade `.style` do elemento.",
+            8: "Incorreto. Em JS, propriedades CSS com hífens são convertidas para o padrão CamelCase (`backgroundColor`).",
+            9: "Incorreto. O método correto para instanciar um elemento na memória é `document.createElement()`.",
+            10: "Incorreto. O método para anexar um filho ao final é `appendChild()`.",
+            11: "Incorreto. O método padrão e atual para apagar um elemento é `.remove()`.",
+            12: "Incorreto. O método padrão para gerenciar eventos é `addEventListener()`.",
+            13: "Correto seria `classList`. Ela facilita muito a manipulação de classes com `.add()`, `.remove()` e `.toggle()`.",
+            14: "Incorreto. O valor digitado em inputs é acessado ou alterado através da propriedade `.value`.",
+            15: "Incorreto. A estrutura de árvore refere-se à relação hierárquica de nós pais, filhos e irmãos."
+        };
+
+        const quizForm = document.getElementById('quizForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const scoreContainer = document.getElementById('scoreContainer');
+        const currentScoreSpan = document.getElementById('currentScore');
+        const resultBox = document.getElementById('resultBox');
+
+        quizForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let score = 0;
+            let answeredCount = 0;
+
+            const questionBlocks = document.querySelectorAll('.question-block');
+
+            questionBlocks.forEach(block => {
+                const qNum = block.getAttribute('data-question');
+                const selectedInput = block.querySelector(`input[name="q${qNum}"]:checked`);
+                const justificationDiv = block.querySelector('.justification');
+
+                // Remove estados anteriores
+                block.classList.remove('correct-glow', 'incorrect-glow');
+                justificationDiv.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-rose-100', 'text-rose-800');
+
+                if (selectedInput) {
+                    answeredCount++;
+                    if (selectedInput.value === 'correct') {
+                        score++;
+                        block.classList.add('correct-glow');
+                        justificationDiv.classList.add('bg-emerald-100', 'text-emerald-800');
+                        justificationDiv.innerHTML = `<strong>Acertou!</strong> ${justifications[qNum]}`;
+                    } else {
+                        block.classList.add('incorrect-glow');
+                        justificationDiv.classList.add('bg-rose-100', 'text-rose-800');
+                        justificationDiv.innerHTML = `<strong>Incorreto.</strong> ${incorrectJustifications[qNum]}`;
+                    }
+                } else {
+                    // Caso não tenha respondido a pergunta
+                    justificationDiv.classList.remove('hidden');
+                    justificationDiv.classList.add('bg-amber-100', 'text-amber-800');
+                    justificationDiv.innerHTML = `<strong>Atenção:</strong> Você não respondeu esta questão.`;
+                }
+            });
+
+            if (answeredCount === 0) {
+                alert("Por favor, responda pelo menos algumas questões antes de enviar.");
+                return;
+            }
+
+            // Mostra pontuação
+            currentScoreSpan.textContent = score;
+            scoreContainer.classList.remove('hidden');
+
+            // Exibe resultado geral estilizado
+            resultBox.classList.remove('hidden');
+            if (score === 15) {
+                resultBox.className = "mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm bg-emerald-100 text-emerald-800 border border-emerald-300";
+                resultBox.innerHTML = "🏆 Excelente! Gabaritou todas as 15 questões. Você domina completamente os conceitos do DOM!";
+            } else if (score >= 10) {
+                resultBox.className = "mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm bg-blue-100 text-blue-800 border border-blue-300";
+                resultBox.textContent = `👏 Muito bom! Você acertou ${score} de 15 questões. Continue praticando para masterizar o DOM.`;
+            } else {
+                resultBox.className = "mt-8 p-6 rounded-xl text-center text-lg font-bold shadow-sm bg-amber-100 text-amber-800 border border-amber-300";
+                resultBox.textContent = `💡 Você acertou ${score} de 15 questões. Revise as justificativas acima para fortalecer seus fundamentos de DOM!`;
+            }
+
+            // Alterna botões
+            submitBtn.classList.add('hidden');
+            resetBtn.classList.remove('hidden');
+
+            // Rolar suavemente para o resultado
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+        });
